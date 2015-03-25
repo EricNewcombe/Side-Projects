@@ -6,7 +6,10 @@ function generateGameBoard (width, height) {
 	for(var i = 0; i < width; i++){
 		map[i] = new Array(height);
 		for(var j = 0; j < height; j++){
-			map[i][j] = 0;
+			map[i][j] = {
+						value: 0,
+						visible: false
+					};
 		}
 	}
 
@@ -25,14 +28,13 @@ function generateMines(board, numMines){
 		var xPos = Math.floor(Math.random() * board.width);
 		var yPos = Math.floor(Math.random() * board.height);
 
-		while( board.map[xPos][yPos] == 'X' ){
+		while( board.map[xPos][yPos].value == 'X' ){
 			//If there is an overlap of the potential mine location, then keep recreating it until it is in a unique location
 			xPos = Math.floor(Math.random() * board.width);
 			yPos = Math.floor(Math.random() * board.height);
-			console.log("duplicate detected");
 		}
 
-		board.map[xPos][yPos] = 'X';
+		board.map[xPos][yPos].value = 'X';
 		incrementCellsTouching(board, xPos, yPos)
 
 	}
@@ -48,7 +50,11 @@ function appendGameBoardToScreen(gameBoard){
 	for(var y = 0; y < gameBoard.height; y++){
 		var row = createDiv('row', "");
 		for (var x = 0; x < gameBoard.width; x++) {
-			var cell = createDiv('cell', gameBoard.map[x][y], function(){console.log('asdf')});
+			var text = createDiv('visible', gameBoard.map[x][y])
+			var cell = createDiv('cell', gameBoard.map[x][y].value, function(){cellClicked(gameBoard, this.x, this.y)});
+			cell.x = x;
+			cell.y = y;
+			cell.id = ''+x+y;
 			row.appendChild(cell);
 		}
 		board.appendChild(row);
@@ -61,7 +67,7 @@ function appendGameBoardToScreen(gameBoard){
 function createDiv(className, innerHTML, functionOnClick){
 	var element = document.createElement('div');
 	element.className = className;
-	element.addEventListener(functionOnClick);
+	element.addEventListener('click', functionOnClick);
 	element.innerHTML = innerHTML;
 	return element;
 }
@@ -71,18 +77,60 @@ function incrementCellsTouching(board, mineX, mineY){
 		for(var yOffset = -1; yOffset <= 1; yOffset++){
 			var x = mineX + xOffset,
 				y = mineY + yOffset;
-			if(  x < 0 || x >= board.width || y < 0 || y >= board.height || board.map[x][y] == 'X' ){
+			if(  notValidPoint(x,y) ){
 				// If the location of the x or y points that are being examined are out of the scope, or if that point is a mine continue through the loop
 				continue;
 			}
 			else {
-				board.map[x][y]++;
+				board.map[x][y].value++;
 			}
 		}
 	}
 }
 
-var board = generateGameBoard(15,10);
+function cellClicked(board, x, y){
+	console.log('clicked cell (' + x + ',' + y + ')');
+	if(board.map[x][y].value == 'X'){
+
+	}
+	else if(board.map[x][y].value == 0){
+		clearEmptyCells(board, x, y);
+	}
+	else{
+		revealCell(x,y);
+	}
+}
+
+function clearEmptyCells(board, startX, startY){
+
+	for(var xOffset = -1; xOffset <= 1; xOffset++){
+		for(var yOffset = -1; yOffset <= 1; yOffset++){
+			var x = startX + xOffset,
+				y = startY + yOffset;
+			if( notValidPoint(x,y) ){
+				// If the location of the x or y points that are being examined are out of the scope, or if that point is a mine continue through the loop
+				continue;
+			}
+			else if (board.map[x][y].value == 0 && board.map[x][y].visible == false){
+				board.map[x][y].visible = true;
+				clearEmptyCells(board, x, y);
+				revealCell(x,y);
+			}
+		}
+	}
+
+}
+
+function notValidPoint(x,y){
+	return  x < 0 || x >= board.width || y < 0 || y >= board.height || board.map[x][y].value == 'X';
+}
+
+function revealCell(x,y){
+	var currentCell = document.getElementById(''+x+y);
+	currentCell.className = "cell searched";
+}
+
+var board = generateGameBoard(10,10);
 generateMines(board,10);
 
 console.log(board);
