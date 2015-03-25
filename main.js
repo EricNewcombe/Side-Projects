@@ -3,9 +3,9 @@ function generateGameBoard (width, height) {
 
 	var map = new Array(height);
 
-	for(var i = 0; i < height; i++){
-		map[i] = new Array(width);
-		for(var j = 0; j < width; j++){
+	for(var i = 0; i < width; i++){
+		map[i] = new Array(height);
+		for(var j = 0; j < height; j++){
 			map[i][j] = 0;
 		}
 	}
@@ -45,10 +45,10 @@ function appendGameBoardToScreen(gameBoard){
 	var container = document.getElementById('playArea');
 	var board = createDiv('gameBoard', '');
 
-	for(var i = 0; i < gameBoard.height; i++){
+	for(var y = 0; y < gameBoard.height; y++){
 		var row = createDiv('row', "");
-		for (var j = 0; j < gameBoard.width; j++) {
-			var cell = createDiv('cell', gameBoard.map[i][j], function(){console.log('asdf')});
+		for (var x = 0; x < gameBoard.width; x++) {
+			var cell = createDiv('cell', gameBoard.map[x][y], function(){console.log('asdf')});
 			row.appendChild(cell);
 		}
 		board.appendChild(row);
@@ -82,7 +82,7 @@ function incrementCellsTouching(board, mineX, mineY){
 	}
 }
 
-var board = generateGameBoard(10,10);
+var board = generateGameBoard(15,10);
 generateMines(board,10);
 
 console.log(board);
