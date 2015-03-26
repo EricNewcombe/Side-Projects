@@ -12,7 +12,7 @@ html{
 	width: 50%;
 	margin: 10px auto;
 	display: table;
-	table-layout: fixed;
+	table-layout: auto;
 }
 
 .row{
@@ -36,7 +36,7 @@ html{
     transition: font-size 0.3s ease, background-color 0.3s ease;
 }
 
-.cell:hover {
+.hiddenCell:hover {
 	background-color: #567714;
 }
 
@@ -44,7 +44,8 @@ html{
 	background-color: #567714;
 }
 
-.hiddenCell{
+.bomb{
+	background-color: red;
 }
 
 .buttonBar{
