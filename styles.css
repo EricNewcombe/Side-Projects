@@ -28,10 +28,23 @@ html{
 	border-style: solid;
 	text-align: center;
 	background: #7A9F35;
+
+	-webkit-transition: font-size 0.3s ease, background-color 0.3s ease;
+    -moz-transition: font-size 0.3s ease, background-color 0.3s ease;
+    -o-transition: font-size 0.3s ease, background-color 0.3s ease;
+    -ms-transition: font-size 0.3s ease, background-color 0.3s ease;
+    transition: font-size 0.3s ease, background-color 0.3s ease;
+}
+
+.cell:hover {
+	background-color: #567714;
 }
 
 .visibleCell{
-	background-color: red;
+	background-color: #567714;
+}
+
+.hiddenCell{
 }
 
 .buttonBar{
@@ -57,11 +70,6 @@ html{
     -o-transition: font-size 0.3s ease, background-color 0.3s ease;
     -ms-transition: font-size 0.3s ease, background-color 0.3s ease;
     transition: font-size 0.3s ease, background-color 0.3s ease;
-}
-
-.button {
-	
-
 }
 
 .buttonContainer:hover {

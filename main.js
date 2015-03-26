@@ -9,8 +9,9 @@ function generateGameBoard (width, height, numMines) {
 			map[i][j] = { value: 0, visible: false };
 		}
 	}
-
-	return {clickable: true, width: width, height: height, map: map, numVisible: 0, numMines: numMines};
+	var board = {clickable: true, width: width, height: height, map: map, numVisible: 0, numMines: numMines};
+	generateMines(board, numMines);
+	return board;
 
 }
 
@@ -47,8 +48,7 @@ function appendGameBoardToScreen(gameBoard){
 	for(var y = 0; y < gameBoard.height; y++){
 		var row = createDiv('row', "");
 		for (var x = 0; x < gameBoard.width; x++) {
-			var text = createDiv('visible', gameBoard.map[x][y])
-			var cell = createDiv('cell', gameBoard.map[x][y].value, function(){cellClicked(gameBoard, this.x, this.y)});
+			var cell = createDiv('cell hiddenCell', "&nbsp", function(){cellClicked(gameBoard, this.x, this.y)});
 			cell.x = x; // Assigns the location of the cell in the grid to the cell to be accessed by other parts of the program
 			cell.y = y;
 			cell.id = 'x'+x+'y'+y;
@@ -135,11 +135,11 @@ function revealCell(board, x, y){
 	board.map[x][y].visible = true;
 	var currentCell = document.getElementById('x'+x+'y'+y);
 	currentCell.className = "cell visibleCell";
+	currentCell.innerHTML = board.map[x][y].value == 0 ? "&nbsp" : board.map[x][y].value;
 }
 
 function startGame(width, height, numMines){
 	var board = generateGameBoard(width, height, numMines);
-	generateMines(board, board.numMines);
 	appendGameBoardToScreen(board);
 	console.log(board);
 }
