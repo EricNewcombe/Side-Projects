@@ -9,7 +9,7 @@ function generateGameBoard (width, height, numMines) {
 			map[i][j] = { value: 0, visible: false };
 		}
 	}
-	var board = {clickable: true, width: width, height: height, map: map, numVisible: 0, numMines: numMines};
+	var board = {clickable: true, width: width, height: height, map: map, numVisible: 0, numMines: numMines, mineLocations: null};
 	generateMines(board, numMines);
 	return board;
 
@@ -25,16 +25,20 @@ function generateMines(board, numMines){
 		var xPos = Math.floor(Math.random() * board.width);
 		var yPos = Math.floor(Math.random() * board.height);
 
-		while( board.map[xPos][yPos].value == 'X' ){
+		while( board.map[xPos][yPos].value == 'x' ){
 			//If there is an overlap of the potential mine location, then keep recreating it until it is in a unique location
 			xPos = Math.floor(Math.random() * board.width);
 			yPos = Math.floor(Math.random() * board.height);
 		}
 
-		board.map[xPos][yPos].value = 'X';
+		mineLocations.push({x: xPos, y: yPos})
+
+		board.map[xPos][yPos].value = 'x';
 		incrementCellsTouching(board, xPos, yPos)
 
 	}
+
+	board.mineLocations = mineLocations;
 
 }
 
@@ -48,7 +52,7 @@ function appendGameBoardToScreen(gameBoard){
 	for(var y = 0; y < gameBoard.height; y++){
 		var row = createDiv('row', "");
 		for (var x = 0; x < gameBoard.width; x++) {
-			var cell = createDiv('cell hiddenCell', "&nbsp", function(){cellClicked(gameBoard, this.x, this.y)});
+			var cell = createDiv('cell hiddenCell', "&nbsp&nbsp", function(){cellClicked(gameBoard, this.x, this.y)});
 			cell.x = x; // Assigns the location of the cell in the grid to the cell to be accessed by other parts of the program
 			cell.y = y;
 			cell.id = 'x'+x+'y'+y;
@@ -90,9 +94,8 @@ function incrementCellsTouching(board, mineX, mineY){
 function cellClicked(board, x, y){
 	//Click handler for the game
 	if (board.clickable) {
-		if (board.map[x][y].value == 'X') { //If bomb end game
-			revealCell(board, x, y);
-			board.clickable = false;
+		if (board.map[x][y].value == 'x') { //If bomb end game
+			endGame(board);
 		}
 		else if (board.map[x][y].value == 0) { //If an empty cell then clear all attached empty cells
 			clearEmptyCells(board, x, y);
@@ -100,6 +103,9 @@ function cellClicked(board, x, y){
 		else { // If a cell attached to a bomb then just reveal it
 			revealCell(board, x, y);
 		}
+	}
+	else {
+		generateMap();
 	}
 }
 
@@ -126,7 +132,7 @@ function clearEmptyCells(board, startX, startY){
 
 function notValidPoint (board, x, y) {
 	//Checks to see if the location of the x or y points are within the scope of the map or if it is a map
-	return  x < 0 || x >= board.width || y < 0 || y >= board.height || board.map[x][y].value == 'X';
+	return  x < 0 || x >= board.width || y < 0 || y >= board.height || board.map[x][y].value == 'x';
 }
 
 function revealCell(board, x, y){
@@ -135,7 +141,15 @@ function revealCell(board, x, y){
 	board.map[x][y].visible = true;
 	var currentCell = document.getElementById('x'+x+'y'+y);
 	currentCell.className = "cell visibleCell";
-	currentCell.innerHTML = board.map[x][y].value == 0 ? "&nbsp" : board.map[x][y].value;
+	if(board.map[x][y].value == 0){ // Sets the value contained in the table cell based on what it should be
+		currentCell.innerHTML =  "&nbsp&nbsp";
+	}
+	else if ( board.map[x][y].value == 'x' ) {
+		currentCell.className = "cell bomb";
+	}
+	else {
+		currentCell.innerHTML = board.map[x][y].value;
+	}
 }
 
 function startGame(width, height, numMines){
@@ -145,12 +159,21 @@ function startGame(width, height, numMines){
 }
 
 function generateMap(){
-	console.log('asdf');
 	var width = document.getElementById('widthText').value,
 		height = document.getElementById('heightText').value,
 		mines = document.getElementById('minesText').value;
 	startGame(width,height,mines)
 }
+
+function endGame(board){
+	for (var i = 0; i < board.mineLocations.length; i++) {
+		var currentMine = board.mineLocations[i];
+		revealCell(board, currentMine.x, currentMine.y);
+	};
+	
+	board.clickable = false;
+}
+
 startGame(10, 10, 10)
 
 
