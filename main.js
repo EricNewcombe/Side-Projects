@@ -94,15 +94,10 @@ function incrementCellsTouching(board, mineX, mineY){
 function cellClicked(board, x, y){
 	//Click handler for the game
 	if (board.clickable) {
-		if (board.map[x][y].value == 'x') { //If bomb end game
-			endGame(board);
-		}
-		else if (board.map[x][y].value == 0) { //If an empty cell then clear all attached empty cells
-			clearEmptyCells(board, x, y);
-		}
-		else { // If a cell attached to a bomb then just reveal it
-			revealCell(board, x, y);
-		}
+		if (board.map[x][y].value == 'x') endGame(board); //If bomb end game
+		else if (board.map[x][y].value == 0) clearEmptyCells(board, x, y); //If an empty cell then clear all attached empty cells
+		else if(board.map[x][y].visible == false) revealCell(board, x, y); // If a cell attached to a bomb then just reveal it
+		updateScoreBoard(board);
 	}
 	else {
 		generateMap();
@@ -141,21 +136,25 @@ function revealCell(board, x, y){
 	board.map[x][y].visible = true;
 	var currentCell = document.getElementById('x'+x+'y'+y);
 	currentCell.className = "cell visibleCell";
-	if(board.map[x][y].value == 0){ // Sets the value contained in the table cell based on what it should be
-		currentCell.innerHTML =  "&nbsp&nbsp";
-	}
-	else if ( board.map[x][y].value == 'x' ) {
-		currentCell.className = "cell bomb";
-	}
-	else {
-		currentCell.innerHTML = board.map[x][y].value;
-	}
+
+	// Sets the value contained in the table cell based on what it should be
+	if(board.map[x][y].value == 0) currentCell.innerHTML =  "&nbsp&nbsp";
+	else if ( board.map[x][y].value == 'x' ) currentCell.className = "cell bomb";
+	else currentCell.innerHTML = board.map[x][y].value;
+
+	if(board.numVisible == board.width * board.height - board.numMines) wonGame(board);
 }
 
 function startGame(width, height, numMines){
 	var board = generateGameBoard(width, height, numMines);
+	updateScoreBoard(board);
 	appendGameBoardToScreen(board);
-	console.log(board);
+}
+
+function updateScoreBoard(board){
+	if(board.clickable){
+		document.getElementById('squaresRemaining').innerHTML = "Spaces left: " + (board.width * board.height - board.numMines - board.numVisible);
+	}
 }
 
 function generateMap(){
@@ -172,6 +171,11 @@ function endGame(board){
 	};
 	
 	board.clickable = false;
+}
+
+function wonGame(board){
+	updateScoreBoard(board);	
+	endGame(board);
 }
 
 startGame(10, 10, 10)
