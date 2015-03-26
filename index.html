@@ -22,6 +22,12 @@
 	<div class="screenContainer">
 		<div id="scoreBoard">
 			<div id="squaresRemaining"></div>
+			<hr>
+			<div>Set pointer action</div>
+			<div id="pointerButtonContainer">
+				<div id="revealButton" class="button activeButton" onclick="setClickAction('reveal')"> Reveal Tile </div>
+				<div id="markButton" class="button" onclick="setClickAction('mark')"> Mark Bomb </div>
+			</div>
 		</div>
 		<div id="playArea"></div>
 	</div>

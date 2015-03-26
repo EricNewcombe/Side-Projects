@@ -6,10 +6,20 @@ function generateGameBoard (width, height, numMines) {
 	for ( var i = 0; i < width; i++ ) { // Generate the map
 		map[i] = new Array(height);
 		for(var j = 0; j < height; j++){
-			map[i][j] = { value: 0, visible: false };
+			map[i][j] = { value: 0, visible: false, marked: false };
 		}
 	}
-	var board = {generated: false, clickable: true, width: width, height: height, map: map, numVisible: 0, numMines: numMines, mineLocations: null};
+	var board = {
+		generated: false, 
+		clickable: true, 
+		width: width, 
+		height: height, 
+		map: map, 
+		numVisible: 0, 
+		numMines: numMines, 
+		mineLocations: null,
+		revealOnClick: true
+	};
 	return board;
 
 }
@@ -94,18 +104,27 @@ function incrementCellsTouching(board, mineX, mineY){
 
 function cellClicked(board, x, y){
 	//Click handler for the game
-	if (board.clickable && board.generated) {
-		if (board.map[x][y].value == 'x') endGame(board); //If bomb end game
-		else if (board.map[x][y].value == 0) clearEmptyCells(board, x, y); //If an empty cell then clear all attached empty cells
-		else if(board.map[x][y].visible == false) revealCell(board, x, y); // If a cell attached to a bomb then just reveal it
-		updateScoreBoard(board);
+	var currentActive = document.getElementsByClassName('activeButton')[0];
+	if(currentActive.id == 'revealButton') board.revealOnClick = true;
+	else board.revealOnClick = false;
+	console.log(board.map[x][y])
+	if( board.revealOnClick && board.map[x][y].marked == false ){ // If set to reveal on click and not a marked cell then reveal the cell
+		if (board.clickable && board.generated) {
+			if (board.map[x][y].value == 'x') endGame(board); //If bomb end game
+			else if (board.map[x][y].value == 0) clearEmptyCells(board, x, y); //If an empty cell then clear all attached empty cells
+			else if(board.map[x][y].visible == false) revealCell(board, x, y); // If a cell attached to a bomb then just reveal it
+			updateScoreBoard(board);
+		}
+		else if(board.clickable && board.generated == false){
+			generateMines(board, board.numMines, {x: x, y: y});
+			cellClicked(board, x, y);
+		}
+		else {
+			generateMap();
+		}
 	}
-	else if(board.clickable && board.generated == false){
-		generateMines(board, board.numMines, {x: x, y: y});
-		cellClicked(board, x, y);
-	}
-	else {
-		generateMap();
+	else if(board.clickable && board.map[x][y].visible == false && board.map[x][y].marked == false ){ // else mark it as a potential bomb if not already revealed
+		markBomb(board, x, y);
 	}
 }
 
@@ -135,7 +154,7 @@ function notValidPoint (board, x, y) {
 	return  x < 0 || x >= board.width || y < 0 || y >= board.height || board.map[x][y].value == 'x';
 }
 
-function revealCell(board, x, y){
+function revealCell (board, x, y) {
 	//Retrieves the cell which is specified by its x and y position
 	board.numVisible++;
 	board.map[x][y].visible = true;
@@ -148,6 +167,20 @@ function revealCell(board, x, y){
 	else currentCell.innerHTML = board.map[x][y].value;
 
 	if(board.numVisible == board.width * board.height - board.numMines) wonGame(board);
+}
+
+function markBomb (board, x, y) { // Toggles between the two states
+	var currentCell = document.getElementById('x'+x+'y'+y);
+	board.map[x][y].marked = board.map[x][y].marked ? false : true;
+	console.log(board.map[x][y])
+	if(currentCell.className == "cell markedBomb") currentCell.className = "cell";
+	else currentCell.className = "cell markedBomb";
+}
+
+function setClickAction (action) {
+	document.getElementById(action+'Button').className = "button activeButton";
+	document.getElementById((action == 'reveal' ? 'mark' : 'reveal') + 'Button').className = "button";
+
 }
 
 function startGame(width, height, numMines){
