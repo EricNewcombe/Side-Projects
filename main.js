@@ -9,14 +9,14 @@ function generateGameBoard (width, height, numMines) {
 			map[i][j] = { value: 0, visible: false };
 		}
 	}
-	var board = {clickable: true, width: width, height: height, map: map, numVisible: 0, numMines: numMines, mineLocations: null};
-	generateMines(board, numMines);
+	var board = {generated: false, clickable: true, width: width, height: height, map: map, numVisible: 0, numMines: numMines, mineLocations: null};
 	return board;
 
 }
 
-function generateMines(board, numMines){
-	//Generates n mine locations on the gameboard provided and updates the cells touching the mine
+function generateMines(board, numMines, startPos){
+	// Generates n mine locations on the gameboard provided and updates the cells touching the mine
+	// Providing a starting click position makes it so that a mine is never generated where the user first clicks
 	var mineLocations = [];
 
 	for (var i = 0; i < numMines; i++) {
@@ -25,7 +25,7 @@ function generateMines(board, numMines){
 		var xPos = Math.floor(Math.random() * board.width);
 		var yPos = Math.floor(Math.random() * board.height);
 
-		while( board.map[xPos][yPos].value == 'x' ){
+		while( board.map[xPos][yPos].value == 'x' || (xPos == startPos.x && yPos == startPos.y)){
 			//If there is an overlap of the potential mine location, then keep recreating it until it is in a unique location
 			xPos = Math.floor(Math.random() * board.width);
 			yPos = Math.floor(Math.random() * board.height);
@@ -39,6 +39,7 @@ function generateMines(board, numMines){
 	}
 
 	board.mineLocations = mineLocations;
+	board.generated = true;
 
 }
 
@@ -93,11 +94,15 @@ function incrementCellsTouching(board, mineX, mineY){
 
 function cellClicked(board, x, y){
 	//Click handler for the game
-	if (board.clickable) {
+	if (board.clickable && board.generated) {
 		if (board.map[x][y].value == 'x') endGame(board); //If bomb end game
 		else if (board.map[x][y].value == 0) clearEmptyCells(board, x, y); //If an empty cell then clear all attached empty cells
 		else if(board.map[x][y].visible == false) revealCell(board, x, y); // If a cell attached to a bomb then just reveal it
 		updateScoreBoard(board);
+	}
+	else if(board.clickable && board.generated == false){
+		generateMines(board, board.numMines, {x: x, y: y});
+		cellClicked(board, x, y);
 	}
 	else {
 		generateMap();
