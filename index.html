@@ -5,9 +5,21 @@
 	<link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-	<div id="playArea">
-		
+	<div class="buttonBar">
+		<div class="buttonContainer">
+			<span>Width: </span><input type="number" id="widthText" value=10></input>
+		</div>
+		<div class="buttonContainer">
+			<span>Height: </span><input type="number" id="heightText" value=10></input>
+		</div>
+		<div class="buttonContainer">
+			<span>Number of Mines: </span><input type="number" id="minesText" value=10></input>
+		</div>
+		<div class="buttonContainer" onclick="generateMap()">
+			Generate
+		</div>
 	</div>
+	<div id="playArea"></div>
 	<script type="text/javascript" src="main.js"></script>
 </body>
 </html>

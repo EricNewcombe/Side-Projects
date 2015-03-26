@@ -1,25 +1,21 @@
 
-function generateGameBoard (width, height) {
+function generateGameBoard (width, height, numMines) {
 	// Creates a game object with attributes clickable, width, height and a map representing all points
 	var map = new Array(height);
 
-	for(var i = 0; i < width; i++){
+	for ( var i = 0; i < width; i++ ) { // Generate the map
 		map[i] = new Array(height);
 		for(var j = 0; j < height; j++){
-			map[i][j] = {
-						value: 0,
-						visible: false
-					};
+			map[i][j] = { value: 0, visible: false };
 		}
 	}
 
-	return {clickable: true, width: width, height: height, map: map};
+	return {clickable: true, width: width, height: height, map: map, numVisible: 0, numMines: numMines};
 
 }
 
 function generateMines(board, numMines){
 	//Generates n mine locations on the gameboard provided and updates the cells touching the mine
-
 	var mineLocations = [];
 
 	for (var i = 0; i < numMines; i++) {
@@ -55,7 +51,7 @@ function appendGameBoardToScreen(gameBoard){
 			var cell = createDiv('cell', gameBoard.map[x][y].value, function(){cellClicked(gameBoard, this.x, this.y)});
 			cell.x = x; // Assigns the location of the cell in the grid to the cell to be accessed by other parts of the program
 			cell.y = y;
-			cell.id = ''+x+y;
+			cell.id = 'x'+x+'y'+y;
 			row.appendChild(cell);
 		}
 		board.appendChild(row);
@@ -66,7 +62,7 @@ function appendGameBoardToScreen(gameBoard){
 }
 
 function createDiv(className, innerHTML, functionOnClick){
-	//
+	// Creates a div element with specific characteristics
 	var element = document.createElement('div');
 	element.className = className;
 	element.addEventListener('click', functionOnClick);
@@ -95,7 +91,7 @@ function cellClicked(board, x, y){
 	//Click handler for the game
 	if (board.clickable) {
 		if (board.map[x][y].value == 'X') { //If bomb end game
-			revealCell(x,y)
+			revealCell(board, x, y);
 			board.clickable = false;
 		}
 		else if (board.map[x][y].value == 0) { //If an empty cell then clear all attached empty cells
@@ -113,18 +109,15 @@ function clearEmptyCells(board, startX, startY){
 		for(var yOffset = -1; yOffset <= 1; yOffset++){
 			var x = startX + xOffset,
 				y = startY + yOffset;
-			if( notValidPoint(board, x, y) || xOffset == yOffset || xOffset == -yOffset ){
+			if( notValidPoint(board, x, y) || xOffset == yOffset && xOffset != 0 || xOffset == -yOffset && xOffset != 0 ){
 				// Eliminates the points which can not be seen by the current location
 				// If the location of the x or y points that are being examined are out of the scope, or if that point is a mine continue through the loop
 				continue;
 			}
-			else if (board.map[x][y].value == 0 && board.map[x][y].visible == false){
-				// Checks to see if the current cell being examined is already visible or not and that it is a blank cell
+			else if ( board.map[x][y].visible == false ){
+				// Checks to see if the current cell being examined is already visible or not 
 				revealCell(board, x, y);
-				clearEmptyCells(board, x, y);
-			}
-			else if(board.map[x][y].value > 0){
-				revealCell(board, x, y);
+				if ( board.map[x][y].value == 0 ) clearEmptyCells(board, x, y); // If the cell is blank then recurse
 			}
 		}
 	}
@@ -138,19 +131,27 @@ function notValidPoint (board, x, y) {
 
 function revealCell(board, x, y){
 	//Retrieves the cell which is specified by its x and y position
+	board.numVisible++;
 	board.map[x][y].visible = true;
-	var currentCell = document.getElementById(''+x+y);
-	currentCell.className = "cell searched";
+	var currentCell = document.getElementById('x'+x+'y'+y);
+	currentCell.className = "cell visibleCell";
 }
 
 function startGame(width, height, numMines){
-	var board = generateGameBoard(width, height);
-	generateMines(board,numMines);
+	var board = generateGameBoard(width, height, numMines);
+	generateMines(board, board.numMines);
 	appendGameBoardToScreen(board);
 	console.log(board);
 }
 
-startGame(10, 10, 20)
+function generateMap(){
+	console.log('asdf');
+	var width = document.getElementById('widthText').value,
+		height = document.getElementById('heightText').value,
+		mines = document.getElementById('minesText').value;
+	startGame(width,height,mines)
+}
+startGame(10, 10, 10)
 
 
 
