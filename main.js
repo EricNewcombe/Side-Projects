@@ -1,4 +1,4 @@
-
+var gamesWon = 0;
 function generateGameBoard (width, height, numMines) {
 	// Creates a game object with attributes clickable, width, height and a map representing all points
 	var map = new Array(height);
@@ -191,6 +191,7 @@ function startGame(width, height, numMines){
 
 function updateScoreBoard(board){
 	if(board.clickable){
+		document.getElementById('gamesWon').innerHTML = "Games won: " + gamesWon;
 		document.getElementById('squaresRemaining').innerHTML = "Spaces left: " + (board.width * board.height - board.numMines - board.numVisible);
 	}
 }
@@ -212,6 +213,7 @@ function endGame(board){
 }
 
 function wonGame(board){
+	gamesWon++;
 	updateScoreBoard(board);	
 	endGame(board);
 }
