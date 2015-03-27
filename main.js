@@ -107,7 +107,6 @@ function cellClicked(board, x, y){
 	var currentActive = document.getElementsByClassName('activeButton')[0];
 	if(currentActive.id == 'revealButton') board.revealOnClick = true;
 	else board.revealOnClick = false;
-	console.log(board.map[x][y])
 	if( board.revealOnClick && board.map[x][y].marked == false ){ // If set to reveal on click and not a marked cell then reveal the cell
 		if (board.clickable && board.generated) {
 			if (board.map[x][y].value == 'x') endGame(board); //If bomb end game
@@ -123,7 +122,7 @@ function cellClicked(board, x, y){
 			generateMap();
 		}
 	}
-	else if(board.clickable && board.map[x][y].visible == false && board.map[x][y].marked == false ){ // else mark it as a potential bomb if not already revealed
+	else if( board.clickable && board.map[x][y].visible == false && board.revealOnClick == false ){ // else mark it as a potential bomb if not already revealed
 		markBomb(board, x, y);
 	}
 }
@@ -172,7 +171,6 @@ function revealCell (board, x, y) {
 function markBomb (board, x, y) { // Toggles between the two states
 	var currentCell = document.getElementById('x'+x+'y'+y);
 	board.map[x][y].marked = board.map[x][y].marked ? false : true;
-	console.log(board.map[x][y])
 	if(currentCell.className == "cell markedBomb") currentCell.className = "cell";
 	else currentCell.className = "cell markedBomb";
 }
