@@ -12,16 +12,18 @@ public class SnakeGame extends Applet implements KeyListener, Runnable {
 	
 	private final int WIDTH = 600;
 	private final int HEIGHT = 600;
+	private final int SEGMENT_SIZE = 10;
 	
 	private final Color BACKGROUND_COLOUR = Color.BLACK;
 	private final Color SNAKE_COLOUR = Color.WHITE;
 	private final Color APPLE_COLOUR = Color.RED;
+
 	
 	Thread tBegin;
-	Snake s = new Snake(50, 50, 3, 5, Color.BLUE, SNAKE_COLOUR);
+	Snake s = new Snake(50, 50, 3, SEGMENT_SIZE, Color.BLUE, SNAKE_COLOUR);
 	int score = 0;
 	
-	GameObject apple = new GameObject(0, 0, 5, APPLE_COLOUR);
+	GameObject apple = new GameObject(0, 0, SEGMENT_SIZE, APPLE_COLOUR);
 	
 	private int direction = 4;
 	
@@ -89,7 +91,8 @@ public class SnakeGame extends Applet implements KeyListener, Runnable {
 	}
 	
 	private void randomizeApple() {
-		apple.setPosition(Utils.randomInt(0, 120) * 5, Utils.randomInt(0, 120) * 5);
+		apple.setPosition(Utils.randomInt(0, 60) * SEGMENT_SIZE,
+						Utils.randomInt(0, 60) * SEGMENT_SIZE);
 	}
 	
 	private void draw() {

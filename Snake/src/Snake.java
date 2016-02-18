@@ -117,7 +117,7 @@ public class Snake {
 				yPos = lastLink.getY() + lastLink.getSize();
 				break;
 			case 2: // right
-				xPos = lastLink.getX() + lastLink.getSize();
+				xPos = lastLink.getX() - lastLink.getSize();
 				yPos = lastLink.getY();
 				break;
 			case 3: // down
@@ -125,7 +125,7 @@ public class Snake {
 				yPos = lastLink.getY() - lastLink.getSize();
 				break;
 			case 4: // left
-				xPos = lastLink.getX() - lastLink.getSize();
+				xPos = lastLink.getX() + lastLink.getSize();
 				yPos = lastLink.getY();
 				break;
 			default:
