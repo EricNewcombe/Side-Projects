@@ -6,11 +6,15 @@ public class Snake {
 	private SnakeSegment head;
 	private ArrayList<SnakeSegment> body;
 	
-	public Snake ( int headX, int headY, int startLength, int segmentSize ) {
+	public Snake ( int headX, int headY, int startLength, int segmentSize, Color headColour, Color bodyColour ) {
 		
 		// Initialize the moving parts of the snake
-		head = new SnakeSegment(headX, headY, segmentSize, Color.BLUE, 4);
-		initBody(headX, headY, startLength, segmentSize);
+		head = new SnakeSegment(headX, headY, segmentSize, headColour, 4);
+		initBody(headX, headY, startLength, segmentSize, bodyColour);
+	}
+	
+	public Snake ( int headX, int headY, int startLength, int segmentSize, Color snakeColour ) {
+		this(headX, headY, startLength, segmentSize, snakeColour,snakeColour);
 	}
 	
 	/**
@@ -21,7 +25,7 @@ public class Snake {
 	 * @param segmentSize - The segment size of links (for offsetting position)
 	 */
 	
-	private void initBody( int startX, int startY, int numberOfLinks, int segmentSize ) {
+	private void initBody( int startX, int startY, int numberOfLinks, int segmentSize, Color bodyColour ) {
 		
 		body = new ArrayList<>();
 		int segmentX = startX + segmentSize;
@@ -30,7 +34,7 @@ public class Snake {
 			SnakeSegment s;
 			
 			segmentX = startX + (segmentSize * i);
-			s = new SnakeSegment(segmentX, startY, segmentSize, Color.GREEN, 4);
+			s = new SnakeSegment(segmentX, startY, segmentSize, bodyColour, 4);
 			
 			body.add(s);
 		}
@@ -86,6 +90,13 @@ public class Snake {
 		return head;
 	}
 	
+	public ArrayList<GameObject> getParts() {
+		ArrayList<GameObject> parts = new ArrayList<GameObject>();
+		parts.add(head);
+		parts.addAll(body);
+		return parts;
+	}
+	
 	public void print() {
 		System.out.print("Head: (" + head.getX() + ", " + head.getY() + ") Body:");
 		for ( int i = 0; i < body.size(); i++ ) {
@@ -93,5 +104,34 @@ public class Snake {
 			System.out.print(" (" + s.getX() + ", " + s.getY() + ")");
 		}
 		System.out.println();
+	}
+	
+	public void grow() {
+		SnakeSegment lastLink = body.get( body.size() - 1 );
+		
+		int direction = lastLink.getDirection();
+		int xPos = 0, yPos = 0;
+		switch ( direction ) {
+			case 1: // up
+				xPos = lastLink.getX();
+				yPos = lastLink.getY() + lastLink.getSize();
+				break;
+			case 2: // right
+				xPos = lastLink.getX() + lastLink.getSize();
+				yPos = lastLink.getY();
+				break;
+			case 3: // down
+				xPos = lastLink.getX();
+				yPos = lastLink.getY() - lastLink.getSize();
+				break;
+			case 4: // left
+				xPos = lastLink.getX() - lastLink.getSize();
+				yPos = lastLink.getY();
+				break;
+			default:
+				break;
+		}
+		
+		body.add(new SnakeSegment(xPos, yPos, lastLink.getSize(), lastLink.getC(), direction));
 	}
 }
