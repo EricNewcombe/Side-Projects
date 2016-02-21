@@ -36,6 +36,7 @@ public class SnakeGame extends Applet implements KeyListener, Runnable {
 		addKeyListener(this);
 		this.setSize(WIDTH, HEIGHT);
 		this.setBackground(BACKGROUND_COLOUR);
+		this.setName("Snake");
 		randomizeApple();
 		
 		tBegin = new Thread(this);
@@ -81,7 +82,6 @@ public class SnakeGame extends Applet implements KeyListener, Runnable {
 		}
 		
 		if ( running == false && key == KeyEvent.VK_SPACE ) {
-			System.out.println("asdf");
 			reset();
 		}
 	}
@@ -126,14 +126,14 @@ public class SnakeGame extends Applet implements KeyListener, Runnable {
 		// Check if still in the game grid
 		if ( head.getX() < 0 || head.getY() < 0 || 
 			head.getX() > WIDTH - SEGMENT_SIZE || head.getY() > HEIGHT - SEGMENT_SIZE ) {
-			System.out.println("Out of bounds");
+			displayEndGameMessage("Snake went out of bounds");
 			return false;
 		}
 		
 		// Check intersection with body
 		for ( SnakeSegment bodySegment : body ) {
 			if ( head.isIntersecting(bodySegment) ) {
-				System.out.println("Intersecting body");
+				displayEndGameMessage("You ate your own body :(");
 				return false;
 			}
 		}
@@ -185,10 +185,13 @@ public class SnakeGame extends Applet implements KeyListener, Runnable {
 	 * Draw the game board based on the gameobject's current positions
 	 */
 	private void draw() {
+		if ( running == false ) { return; }
+		
 		Graphics g = getGraphics();
 		ArrayList<GameObject> snakeParts = s.getParts();
 		
 		// Draw background
+		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		
 		// Draw score
@@ -213,6 +216,18 @@ public class SnakeGame extends Applet implements KeyListener, Runnable {
 	private void delay( int milliseconds ) {
 		try { Thread.sleep(milliseconds);}
 		catch (InterruptedException e) {}
+	}
+	
+	private void displayEndGameMessage ( String message ) {
+		Graphics g = getGraphics();
+		
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, WIDTH, HEIGHT);
+		
+		g.setColor(Color.WHITE);
+		g.drawString("Score: " + score, 250, HEIGHT / 2 - 20);
+		g.drawString(message, 200, HEIGHT / 2);
+		g.drawString("Press space to continue", 210, HEIGHT / 2 + 20);
 	}
 	
 }
