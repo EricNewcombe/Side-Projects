@@ -90,6 +90,10 @@ public class Snake {
 		return head;
 	}
 	
+	public ArrayList<SnakeSegment> getBody() {
+		return body;
+	}
+	
 	public ArrayList<GameObject> getParts() {
 		ArrayList<GameObject> parts = new ArrayList<GameObject>();
 		parts.add(head);
