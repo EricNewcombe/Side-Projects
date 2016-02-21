@@ -14,6 +14,7 @@ public class SnakeGame extends Applet implements KeyListener, Runnable {
 	private final int HEIGHT = 600;
 	private final int SEGMENT_SIZE = 10;
 	private final int MINIMUM_DIFFICULTY = 50;
+	private final int APPLE_POINT_VALUE = 10;
 	
 	private final Color BACKGROUND_COLOUR = Color.BLACK;
 	private final Color SNAKE_COLOUR = Color.WHITE;
@@ -27,7 +28,7 @@ public class SnakeGame extends Applet implements KeyListener, Runnable {
 	
 	GameObject apple = new GameObject(0, 0, SEGMENT_SIZE, APPLE_COLOUR);
 	
-	private int direction = 4;
+	int direction = 4;
 	
 	boolean running = true;
 	
@@ -100,6 +101,10 @@ public class SnakeGame extends Applet implements KeyListener, Runnable {
 		
 	}
 	
+	/**
+	 * updates the position of the snake, checks whether the game is still running and whether the
+	 * apple should be moved or not
+	 */
 	private void update() {
 		running = checkRunning();
 		if ( running == false ) {
@@ -109,17 +114,23 @@ public class SnakeGame extends Applet implements KeyListener, Runnable {
 		checkApple();
 	}
 	
+	/**
+	 * Checks to see if the game is still running based on where the head position is. If the head
+	 * intersects the body or is outside of the game bounds it returns false, otherwise returns true
+	 */
 	private boolean checkRunning() {
 		
 		SnakeSegment head = s.getHead();
 		ArrayList<SnakeSegment> body = s.getBody();
 		
+		// Check if still in the game grid
 		if ( head.getX() < 0 || head.getY() < 0 || 
 			head.getX() > WIDTH - SEGMENT_SIZE || head.getY() > HEIGHT - SEGMENT_SIZE ) {
 			System.out.println("Out of bounds");
 			return false;
 		}
 		
+		// Check intersection with body
 		for ( SnakeSegment bodySegment : body ) {
 			if ( head.isIntersecting(bodySegment) ) {
 				System.out.println("Intersecting body");
@@ -131,39 +142,74 @@ public class SnakeGame extends Applet implements KeyListener, Runnable {
 	}
 	
 	
-	
+	/**
+	 * Checks to see if the head is intersecting the apple. If it has, replace the apple somewhere
+	 * else in the map and increase the difficulty and score
+	 */
 	private void checkApple() {
 		if ( s.getHead().isIntersecting(apple) ) {
-			score += 10;
+			modifyScore(APPLE_POINT_VALUE);
 			if ( difficulty > MINIMUM_DIFFICULTY ) { difficulty -= 2; }
 			randomizeApple();
 			s.grow();
 		}
 	}
 	
+	/**
+	 * Changes the score
+	 * @param amount - The amount to change the score by
+	 */
+	private void modifyScore( int amount ) {
+		score += amount;
+	}
+	
+	/**
+	 * Function to randomly place the apple in an open space in the board
+	 */
 	private void randomizeApple() {
 		apple.setPosition(Utils.randomInt(0, 59) * SEGMENT_SIZE,
 						Utils.randomInt(0, 59) * SEGMENT_SIZE);
+		
+		// Check to see if the apple has spawned anywhere inside of the snake, if it
+		// has then rerandomize it
+		ArrayList<GameObject> snake = s.getParts();
+		
+		for ( GameObject snakeSegment : snake ) {
+			if ( apple.isIntersecting(snakeSegment) ) {
+				randomizeApple();
+			}
+		}
 	}
 	
+	/**
+	 * Draw the game board based on the gameobject's current positions
+	 */
 	private void draw() {
 		Graphics g = getGraphics();
 		ArrayList<GameObject> snakeParts = s.getParts();
 		
+		// Draw background
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		
+		// Draw score
 		g.setColor(Color.white);
 		g.drawString("Score: " + score, 10, 10);
 		
+		// Draw snake
 		for ( GameObject part : snakeParts ) {
 			g.setColor(part.getC());
 			g.fillRect(part.getX(), part.getY(), part.getSize(), part.getSize());
 		}
 		
+		// Draw Apple
 		g.setColor(apple.getC());
 		g.fillRect(apple.getX(), apple.getY(), apple.getSize(), apple.getSize());
 	}
 	
+	/**
+	 * Delays the game execution by the number of millisecodns supplied
+	 * @param milliseconds - The number of milliseconds to be delayed by
+	 */
 	private void delay( int milliseconds ) {
 		try { Thread.sleep(milliseconds);}
 		catch (InterruptedException e) {}
